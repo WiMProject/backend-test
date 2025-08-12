@@ -120,25 +120,15 @@ class UserController extends Controller
                 'message' => 'Pengguna berhasil dibuat',
                 'data' => $user->only(['id', 'name', 'email', 'phone', 'is_active', 'department', 'created_at', 'updated_at'])
             ], 201);
-        } catch (\Illuminate\Database\QueryException $e) {
-            if ($e->getCode() == 23000) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Email sudah digunakan',
-                    'error' => 'Email sudah terdaftar oleh pengguna lain'
-                ], 422);
-            }
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal membuat pengguna',
-                'error' => $e->getMessage()
-            ], 500);
         } catch (\Exception $e) {
+            $status = str_contains($e->getMessage(), 'UNIQUE') ? 422 : 500;
+            $message = $status == 422 ? 'Email sudah digunakan' : 'Gagal membuat pengguna';
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal membuat pengguna',
+                'message' => $message,
                 'error' => $e->getMessage()
-            ], 500);
+            ], $status);
         }
     }
 
@@ -192,18 +182,13 @@ class UserController extends Controller
                 'message' => 'Data pengguna berhasil diambil',
                 'data' => $user->only(['id', 'name', 'email', 'phone', 'is_active', 'department', 'created_at', 'updated_at'])
             ]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Pengguna tidak ditemukan',
-                'error' => 'User dengan ID ' . $id . ' tidak ditemukan'
-            ], 404);
         } catch (\Exception $e) {
+            $status = $e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException ? 404 : 500;
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal mengambil data pengguna',
+                'message' => $status == 404 ? 'Pengguna tidak ditemukan' : 'Gagal mengambil data pengguna',
                 'error' => $e->getMessage()
-            ], 500);
+            ], $status);
         }
     }
 
@@ -287,31 +272,23 @@ class UserController extends Controller
                 'message' => 'Pengguna berhasil diperbarui',
                 'data' => $user->only(['id', 'name', 'email', 'phone', 'is_active', 'department', 'created_at', 'updated_at'])
             ]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Pengguna tidak ditemukan',
-                'error' => 'User dengan ID ' . $id . ' tidak ditemukan'
-            ], 404);
-        } catch (\Illuminate\Database\QueryException $e) {
-            if ($e->getCode() == 23000) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Email sudah digunakan',
-                    'error' => 'Email sudah terdaftar oleh pengguna lain'
-                ], 422);
-            }
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal memperbarui pengguna',
-                'error' => $e->getMessage()
-            ], 500);
         } catch (\Exception $e) {
+            if ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
+                $status = 404;
+                $message = 'Pengguna tidak ditemukan';
+            } elseif (str_contains($e->getMessage(), 'UNIQUE')) {
+                $status = 422;
+                $message = 'Email sudah digunakan';
+            } else {
+                $status = 500;
+                $message = 'Gagal memperbarui pengguna';
+            }
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memperbarui pengguna',
+                'message' => $message,
                 'error' => $e->getMessage()
-            ], 500);
+            ], $status);
         }
     }
 
@@ -364,18 +341,15 @@ class UserController extends Controller
                 'success' => true,
                 'message' => 'Pengguna berhasil dihapus'
             ]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Pengguna tidak ditemukan',
-                'error' => 'User dengan ID ' . $id . ' tidak ditemukan'
-            ], 404);
         } catch (\Exception $e) {
+            $status = $e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException ? 404 : 500;
+            $message = $status == 404 ? 'Pengguna tidak ditemukan' : 'Gagal menghapus pengguna';
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghapus pengguna',
+                'message' => $message,
                 'error' => $e->getMessage()
-            ], 500);
+            ], $status);
         }
     }
 }
