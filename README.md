@@ -26,7 +26,7 @@ API mengelola data pengguna dengan field:
 ## Tech Stack
 
 - **Framework**: Laravel 12
-- **Database**: SQLite (default) / MySQL / PostgreSQL
+- **Database**: MySQL (default) / SQLite / PostgreSQL
 - **Documentation**: L5-Swagger (OpenAPI 3.0)
 - **Testing**: PHPUnit
 - **Containerization**: Docker & Docker Compose
@@ -46,6 +46,9 @@ composer install
 # Setup environment
 cp .env.example .env
 php artisan key:generate
+
+# Setup database (MySQL)
+# Create database 'backend' in MySQL first
 
 # Run migrations dan seeder
 php artisan migrate --seed
@@ -222,7 +225,11 @@ Test coverage mencakup:
    APP_ENV=production
    APP_DEBUG=false
    APP_KEY=base64:your-app-key
-   DB_CONNECTION=sqlite
+   DB_CONNECTION=mysql
+   DB_HOST=your-mysql-host
+   DB_DATABASE=backend
+   DB_USERNAME=your-username
+   DB_PASSWORD=your-password
    ```
 4. Deploy
 
@@ -246,7 +253,7 @@ backend-test/
 
 ## Notes
 
-- Database menggunakan SQLite secara default untuk kemudahan development
+- Database menggunakan MySQL secara default untuk production-ready setup
 - Password di-hash menggunakan bcrypt
 - API menggunakan JSON response format yang konsisten
 - Error handling comprehensive dengan pesan informatif dalam Bahasa Indonesia
@@ -258,4 +265,4 @@ backend-test/
 **Dibuat untuk Backend Skill Test**
 
 **Developer:** Wildan Miladji  
-**Tech Stack:** Laravel 12 + SQLite + Docker + Swagger
+**Tech Stack:** Laravel 12 + MySQL + Docker + Swagger
